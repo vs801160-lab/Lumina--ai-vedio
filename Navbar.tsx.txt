@@ -1,0 +1,85 @@
+
+import React from 'react';
+import { Play, CreditCard, Video, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react';
+
+interface NavbarProps {
+  currentView: string;
+  onNavigate: (view: string) => void;
+  credits: number;
+  t: any;
+  user: any;
+  onLoginClick: () => void;
+  onLogout: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, credits, t, user, onLoginClick, onLogout }) => {
+  const navItems = [
+    { id: 'generate', label: 'Studio', icon: Video },
+    { id: 'library', label: 'Vault', icon: LayoutDashboard },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-[70] bg-[#080c16]/80 backdrop-blur-xl border-b border-slate-800/50 px-8 py-5 flex items-center justify-between">
+      <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('generate')}>
+        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-2xl shadow-indigo-600/40 group-hover:scale-110 transition-transform">
+          <Play className="text-white w-5 h-5 fill-current" />
+        </div>
+        <h1 className="text-xl font-black tracking-tighter uppercase">
+          Lumina <span className="text-indigo-500">Video</span>
+        </h1>
+      </div>
+
+      <div className="flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-2">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest ${
+                currentView === item.id
+                  ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-600/20'
+                  : 'text-slate-500 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <item.icon size={14} />
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="h-8 w-px bg-slate-800 hidden lg:block"></div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-inner">
+            <span className="text-[10px] font-black text-slate-500 tracking-widest uppercase">{t.credits}</span>
+            <span className="text-sm font-black text-indigo-400">{credits}</span>
+          </div>
+          
+          {user ? (
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-800">
+               <div className="w-9 h-9 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center overflow-hidden">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt="User" />
+                  ) : (
+                    <User size={18} className="text-slate-400" />
+                  )}
+               </div>
+               <button onClick={onLogout} className="p-2 text-slate-500 hover:text-red-400 transition-colors">
+                 <LogOut size={18} />
+               </button>
+            </div>
+          ) : (
+            <button 
+              onClick={onLoginClick}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-2xl text-xs font-black transition-all shadow-xl shadow-indigo-600/20 flex items-center gap-2"
+            >
+              SIGN IN
+            </button>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
