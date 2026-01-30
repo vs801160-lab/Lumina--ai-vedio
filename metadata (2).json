@@ -1,7 +1,0 @@
-{
-  "name": "Lumina AI Video Pro",
-  "description": "A professional-grade AI video generation platform powered by Gemini Veo. Create cinematic videos from text, images, or reference frames with multi-shot consistency and video extension features.",
-  "requestFramePermissions": [
-    "camera"
-  ]
-}
