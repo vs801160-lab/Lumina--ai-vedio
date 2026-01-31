@@ -409,6 +409,12 @@ const App: React.FC = () => {
 
       {/* Login Modal */}
       {showLogin && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[3rem] p-10 relative animate-in zoom-in-95 duration-300">
-            <button onClick={() => setShowLogin(
+        
+<div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[3rem] p-10 relative animate-in z-10">
+  <button
+    onClick={() => setShowLogin(true)}
+    className="px-4 py-2 bg-indigo-600 text-white rounded"
+  >
+    Sign in
+  </button>
+</div>
