@@ -2,7 +2,7 @@
 # 🎥 Lumina AI Video Pro
 ### The Future of Cinematic Synthesis
 
-Lumina AI Video Pro is a world-class AI video generation platform designed for creators, filmmakers, and business owners. Powered by the latest **Google Gemini Veo** models and **Supabase Cloud**, it offers a seamless pipeline from text-to-cinematic reality.
+Lumina AI Video Pro is a world-class AI video generation platform designed for creators, filmmakers, and business owners. Powered by the latest **Google Gemini Veo** models and **Supabase Cloud**, it offers a seamless pipeline from text-to-cinematic reality. .
 
 ---
 
