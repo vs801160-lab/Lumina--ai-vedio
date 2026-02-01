@@ -406,20 +406,35 @@ const App: React.FC = () => {
            </div>
         </div>
       )}
+{/* Login Modal */}
+{showLogin && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md">
+    <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[3rem] p-10 relative animate-in zoom-in-95 duration-300">
+      
+      <button
+        onClick={() => setShowLogin(false)}
+        className="absolute top-6 right-6 text-slate-400 hover:text-white"
+      >
+        <X size={20} />
+      </button>
 
-      {/* Login Modal */}
-      {showLogin && (
-        
-<div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[3rem] p-10 relative animate-in z-10">
-  <button
-    onClick={() => setShowLogin(true)}
-    className="px-4 py-2 bg-indigo-600 text-white rounded"
-  >
-    Sign in
-  
-</button>
+      <h3 className="text-2xl font-black mb-6 text-center">
+        {t.loginTitle}
+      </h3>
+
+      <p className="text-slate-400 text-sm text-center mb-8">
+        {t.loginDesc}
+      </p>
+
+      <button
+        onClick={handleLogin}
+        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black flex items-center justify-center gap-3"
+      >
+        <LogIn size={18} />
+        Sign in with Google
+      </button>
+
     </div>
-  );
-}
-
-export default App;
+  </div>
+)}
+      
