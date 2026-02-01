@@ -417,4 +417,8 @@ const App: React.FC = () => {
   >
     Sign in
   </button>
-</div>
+   </div>
++  );
++}
++
++export default App;
