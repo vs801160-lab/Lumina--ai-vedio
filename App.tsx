@@ -416,9 +416,10 @@ const App: React.FC = () => {
     className="px-4 py-2 bg-indigo-600 text-white rounded"
   >
     Sign in
-  </button>
-   </div>
-+  );
-+}
-+
-+export default App;
+  
+</button>
+    </div>
+  );
+}
+
+export default App;
