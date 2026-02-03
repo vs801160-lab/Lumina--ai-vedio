@@ -1,254 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import VideoCard from './components/VideoCard';
-import { GeminiVideoService } from './geminiService';
-import { db } from './supabaseService';
-import { GeneratedVideo, GenerationSettings, SubscriptionTier, UserProfile, AspectRatio, VisualStyle } from './types';
-import { 
-  Video as VideoIcon, 
-  AlertCircle, Loader2, 
-  X, Globe2, 
-  Zap as ZapIcon, ShieldCheck, 
-  LogIn, Star, Check, Sparkles, Wand2, Plus, ExternalLink, CreditCard, RefreshCcw
-} from 'lucide-react';
+import { useState } from "react";
 
-const STYLES: VisualStyle[] = [
-  { id: 'cinematic', name: 'Cinematic', prompt: 'hyper-realistic cinematic, 8k, IMAX lighting, sharp focus, anamorphic lens', image: '🎥' },
-  { id: '3danimation', name: '3D Pixar', prompt: 'disney pixar animation style, adorable characters, vivid colors, sub-surface scattering', image: '🐹' },
-  { id: 'cyberpunk', name: 'Cyberpunk', prompt: 'futuristic neon city, blade runner aesthetic, rainy atmosphere, deep shadows', image: '🏙️' },
-  { id: 'anime', name: 'Studio Ghibli', prompt: 'hand-drawn anime, hayao miyazaki style, soft painterly backgrounds, nostalgic', image: '🎐' },
-];
-
-const TEXTS = {
-  EN: {
-    title: 'AI Director Studio',
-    promptPlaceholder: 'Describe your vision...',
-    actionBtn: 'Generate Video',
-    billingWarning: 'Veo requires a Paid API Key (Use your $300 Credits)',
-    credits: 'Credits',
-    vault: 'Vault',
-    errorTitle: 'Engine Error'
-  },
-  HI: {
-    title: 'एआई डायरेक्टर स्टूडियो',
-    promptPlaceholder: 'अपना वीडियो विचार यहाँ लिखें...',
-    actionBtn: 'वीडियो बनायें',
-    billingWarning: 'Veo के लिए पेड API की जरूरत है ($300 क्रेडिट्स का उपयोग करें)',
-    credits: 'क्रेडिट्स',
-    vault: 'वॉल्ट',
-    errorTitle: 'इंजन में त्रुटि'
-  }
-};
-
-const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState('generate');
-  const [user, setUser] = useState<any>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
-  const [profile, setProfile] = useState<UserProfile>({
-    credits: 100,
-    tier: SubscriptionTier.PRO,
-    isApiKeySelected: false,
-    pinnedReferences: [],
-    appLanguage: 'HI'
-  });
-  
-  const t = TEXTS[profile.appLanguage];
-  const [library, setLibrary] = useState<GeneratedVideo[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [status, setStatus] = useState('');
+function App() {
+  // ===== STATES =====
+  const [prompt, setPrompt] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [prompt, setPrompt] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState<VisualStyle>(STYLES[0]);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
-
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        const hasKey = await GeminiVideoService.checkApiKey();
-        setProfile(prev => ({ ...prev, isApiKeySelected: hasKey }));
-        const u = await db.getUser();
-        setUser(u);
-        const videos = await db.fetchVideos(u?.id || 'anonymous');
-        setLibrary(videos || []);
-      } catch (err) {
-        console.error("Initialization error:", err);
-        setError("App failed to start. Check your internet or refresh.");
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-    initApp();
-  }, [currentView]);
-
-  const handleKeySelection = async () => {
-    try {
-      await GeminiVideoService.openKeySelection();
-      setProfile(prev => ({ ...prev, isApiKeySelected: true }));
-      setError(null);
-    } catch (e) {
-      console.error("Key selection failed", e);
-    }
-  };
-
-  const startGeneration = async () => {
-    if (!profile.isApiKeySelected) {
-      await handleKeySelection();
+  // ===== GENERATE VIDEO FUNCTION =====
+  const generateVideo = async () => {
+    if (!prompt.trim()) {
+      alert("Please enter a prompt");
       return;
     }
-    setIsGenerating(true);
+
+    setLoading(true);
     setError(null);
+    setVideoUrl(null);
+
     try {
-      const settings: GenerationSettings = {
-        prompt,
-        aspectRatio,
-        resolution: '720p',
-        style: selectedStyle.prompt
-      };
-      const { videoUrl, apiVideoData } = await GeminiVideoService.generateVideo(settings, setStatus);
-      const newVideo: GeneratedVideo = {
-        id: Math.random().toString(36).substr(2, 9),
-        prompt,
-        url: videoUrl,
-        createdAt: Date.now(),
-        aspectRatio,
-        resolution: '720p',
-        apiVideoData
-      };
-      await db.saveVideo(newVideo, user?.id || 'anonymous');
-      setLibrary(prev => [newVideo, ...prev]);
-      setCurrentView('library');
-    } catch (err: any) {
-      console.error("Generation error:", err);
-      if (err.message === 'API_KEY_ERROR' || err.message?.includes("entity was not found")) {
-        setError("Google Billing Error: Please ensure you have linked your Billing Account to your Google Cloud project to use the $300 credits for Veo.");
+      const response = await fetch(
+        "https://YOUR-BACKEND-URL/generate-video",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.videoUrl) {
+        setVideoUrl(data.videoUrl);
       } else {
-        setError(err.message || "Synthesis failed. Please check your API key.");
+        setError("Video generation failed");
       }
-    } finally {
-      setIsGenerating(false);
-      setStatus("");
+    } catch (err) {
+      setError("Server error. Please try again.");
     }
+
+    setLoading(false);
   };
 
-  if (isInitializing) {
-    return (
-      <div className="h-screen w-screen bg-[#06080f] flex flex-col items-center justify-center gap-6">
-        <Loader2 className="text-indigo-500 animate-spin" size={40} />
-        <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Loading Studio...</p>
-      </div>
-    );
-  }
-
+  // ===== UI =====
   return (
-    <div className="min-h-screen bg-[#06080f] text-white flex flex-col selection:bg-indigo-500/30">
-      <Navbar 
-        currentView={currentView} 
-        onNavigate={setCurrentView} 
-        credits={profile.credits} 
-        t={t}
-        user={user}
-        onLoginClick={() => {}}
-        onLogout={() => {}}
-        onBuyCredits={() => {}}
-      />
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#0f172a",
+        color: "#fff",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          background: "#020617",
+          padding: "20px",
+          borderRadius: "12px",
+        }}
+      >
+        <h2 style={{ textAlign: "center", marginBottom: "15px" }}>
+          🎬 Lumina AI Video
+        </h2>
 
-      <main className="flex-grow max-w-6xl mx-auto px-6 py-12 w-full">
-        {currentView === 'generate' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/10 border border-indigo-500/30 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 shadow-2xl">
-              <div className="bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-600/20">
-                <CreditCard className="text-white" size={32} />
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-bold text-indigo-400">Claim your $300 Credits</h3>
-                <p className="text-slate-400 text-sm mt-1">To generate video, you must link your Free Tier Billing Account in Google Cloud Console.</p>
-              </div>
-              <a 
-                href="https://console.cloud.google.com/billing" 
-                target="_blank" 
-                className="bg-indigo-600 hover:bg-indigo-500 px-8 py-4 rounded-xl font-black text-xs flex items-center gap-2 transition-all shadow-xl"
-              >
-                GCP BILLING <ExternalLink size={14} />
-              </a>
-            </div>
+        <input
+          type="text"
+          placeholder="Describe your video..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "none",
+            marginBottom: "10px",
+          }}
+        />
 
-            <div className="bg-slate-900/40 border border-slate-800 rounded-[3rem] p-10 shadow-2xl relative">
-              <div className="flex items-center gap-4 mb-8">
-                <Wand2 className="text-indigo-500" size={24} />
-                <h2 className="text-2xl font-black uppercase tracking-tighter">{t.title}</h2>
-              </div>
+        <button
+          onClick={generateVideo}
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "none",
+            background: loading ? "#475569" : "#2563eb",
+            color: "#fff",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          {loading ? "Generating..." : "Generate Video"}
+        </button>
 
-              <textarea 
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder={t.promptPlaceholder}
-                className="w-full h-40 bg-slate-950/80 border border-slate-800 rounded-3xl p-6 text-lg focus:border-indigo-500 outline-none resize-none mb-6 transition-all"
-              />
-
-              {error && (
-                <div className="p-5 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-bold mb-6 flex items-center gap-3">
-                  <AlertCircle size={18} /> {error}
-                </div>
-              )}
-
-              <button 
-                onClick={startGeneration}
-                disabled={isGenerating}
-                className="w-full py-7 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-              >
-                {isGenerating ? <Loader2 className="animate-spin" /> : <ZapIcon className="fill-current" />}
-                <span>{isGenerating ? status || 'Synthesizing...' : t.actionBtn}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {STYLES.map(s => (
-                <button 
-                  key={s.id} 
-                  onClick={() => setSelectedStyle(s)}
-                  className={`p-6 rounded-3xl border transition-all flex flex-col items-center gap-2 ${selectedStyle.id === s.id ? 'bg-indigo-600 border-indigo-400 scale-105' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`}
-                >
-                  <span className="text-3xl">{s.image}</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest">{s.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+        {loading && (
+          <p style={{ marginTop: "10px", textAlign: "center" }}>
+            ⏳ AI is creating your video…
+          </p>
         )}
 
-        {currentView === 'library' && (
-          <div className="space-y-12">
-            <div className="flex items-center justify-between">
-              <h2 className="text-4xl font-black uppercase tracking-tighter">{t.vault}</h2>
-            </div>
-            {library.length === 0 ? (
-              <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-700 border-2 border-dashed border-slate-800 rounded-[3rem]">
-                <VideoIcon size={48} />
-                <p className="font-bold uppercase tracking-widest text-xs">The Vault is empty</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {library.map(video => (
-                  <VideoCard 
-                    key={video.id} 
-                    video={video} 
-                    onDelete={(id) => setLibrary(prev => prev.filter(v => v.id !== id))} 
-                    onExtend={() => {}} 
-                    onPinReference={() => {}} 
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        {error && (
+          <p style={{ marginTop: "10px", color: "red", textAlign: "center" }}>
+            {error}
+          </p>
         )}
-      </main>
 
-      <footer className="py-12 border-t border-slate-900 flex flex-col items-center gap-4">
-         <div className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">Lumina AI Video Pro</div>
-      </footer>
+        {videoUrl && (
+          <video
+            src={videoUrl}
+            controls
+            autoPlay
+            loop
+            style={{
+              width: "100%",
+              marginTop: "15px",
+              borderRadius: "10px",
+            }}
+          />
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default App;
