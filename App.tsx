@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import VideoCard from './components/VideoCard';
 import { GeminiVideoService } from './geminiService';
-import { db } from './supabaseService';
+import { supabase}from'./supabaseService';
 import { GeneratedVideo, GenerationSettings, SubscriptionTier, UserProfile, AspectRatio, VisualStyle } from './types';
 import { 
   Video as VideoIcon, 
