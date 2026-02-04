@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import VideoCard from './components/VideoCard';
 import { GeminiVideoService } from './geminiService';
-import { db } from './supabaseService';
+import { supabase } from './supabaseService';
 import { GeneratedVideo, GenerationSettings, SubscriptionTier, UserProfile, AspectRatio, VisualStyle } from './types';
 import { 
   Video as VideoIcon, 
@@ -44,13 +44,13 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const u = await db.getUser();
+        const u = await supabase.getUser();
         if (u) {
           setUser(u);
-          const videos = await db.fetchVideos(u.id);
+          const videos = await supabase.fetchVideos(u.id);
           setLibrary(videos || []);
         } else {
-          const videos = await db.fetchVideos('anonymous');
+          const videos = await subabase.fetchVideos('anonymous');
           setLibrary(videos || []);
         }
         
@@ -71,7 +71,7 @@ const App: React.FC = () => {
       if (loginError) throw loginError;
       if (newUser) {
         setUser(newUser);
-        const videos = await db.fetchVideos(newUser.id);
+        const videos = await subabase.fetchVideos(newUser.id);
         setLibrary(videos || []);
       }
     } catch (err) {
@@ -112,7 +112,7 @@ const App: React.FC = () => {
         apiVideoData
       };
       
-      await db.saveVideo(newVideo, user?.id || 'anonymous');
+      await subabase.saveVideo(newVideo, user?.id || 'anonymous');
       setLibrary(prev => [newVideo, ...prev]);
       setCurrentView('library');
     } catch (err: any) {
@@ -154,7 +154,7 @@ const App: React.FC = () => {
         t={{}}
         user={user}
         onLoginClick={handleLogin}
-        onLogout={() => { db.signOut(); setUser(null); }}
+        onLogout={() => { subabase.signOut(); setUser(null); }}
         onBuyCredits={() => setCurrentView('pricing')}
       />
 
