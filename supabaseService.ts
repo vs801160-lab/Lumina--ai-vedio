@@ -95,3 +95,4 @@ class SupabaseService {
 export const supabase = new SupabaseService(
   import.meta.env.VITE_SUPABASE_URL,
   impor.meta.env.VITE_SUPABASE_ANON_KEY);
+export default supabase;
