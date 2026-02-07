@@ -1,5 +1,5 @@
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { GeneratedVideo } from './types';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -101,4 +101,5 @@ class SupabaseService {
   }
 }
 
-export const db = new SupabaseService();
+export const supabase = creatClient();
+export default supabase;
