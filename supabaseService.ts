@@ -101,5 +101,5 @@ class SupabaseService {
   }
 }
 
-export const supabase = creatClient();
+export const supabase = supabaseService();
 export default supabase;
