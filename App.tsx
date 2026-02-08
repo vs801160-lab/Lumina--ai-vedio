@@ -45,13 +45,13 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const u = await db.getUser();
+        const u = await supabase.getUser();
         if (u) {
           setUser(u);
-          const videos = await db.fetchVideos(u.id);
+          const videos = await supabase.fetchVideos(u.id);
           setLibrary(videos || []);
         } else {
-          const videos = await db.fetchVideos('anonymous');
+          const videos = await supanase.fetchVideos('anonymous');
           setLibrary(videos || []);
         }
         
