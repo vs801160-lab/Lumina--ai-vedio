@@ -67,8 +67,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, credits, t, us
           {user ? (
             <div className="flex items-center gap-3 pl-4 border-l border-slate-800">
                <div className="w-9 h-9 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center overflow-hidden">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="User" />
+                  {user.user_metadata.avtar_url?(
+                    <img src={user.user_metadata.avtar_url} alt="User" />
                   ) : (
                     <User size={18} className="text-slate-400" />
                   )}
