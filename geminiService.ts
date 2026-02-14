@@ -39,20 +39,20 @@ export class GeminiVideoService {
    * Generate video using Gemini
    */
   static async generateVideo(settings: GenerationSettings) {
-    const client = this.createClient();
+  const client = this.createClient();
 
-    // ⚠️ Example call — adjust as per your actual Gemini API usage
-    const model = import.meta.env.VITE_MODEL?.trim() || "gemini-1.5-flash";
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: settings.prompt }
-          ]
-        }
-      ]
-    });
+  const response = await client.generateContent({
+    model: import.meta.env.VITE_MODEL?.trim() || "gemini-1.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: settings.prompt }
+        ]
+      }
+    ]
+  });
 
-    return response;
+  return response;
   }
 }
