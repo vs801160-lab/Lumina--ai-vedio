@@ -38,14 +38,14 @@ export class GeminiVideoService {
   /**
    * Generate video using Gemini
    */
-  static async generateVideo(settings: GenerationSettings) {
+ static async generateVideo(settings: GenerationSettings) {
   const client = this.createClient();
 
   const response = await client.models.generateContent({
     model: import.meta.env.VITE_MODEL?.trim() || "gemini-1.5-flash",
-    contents: settings.prompt
+    contents: settings.prompt,
   });
 
-  return response;
+  return response.text;
   }
 }
