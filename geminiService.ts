@@ -41,16 +41,9 @@ export class GeminiVideoService {
   static async generateVideo(settings: GenerationSettings) {
   const client = this.createClient();
 
-  const response = await client.generateContent({
+  const response = await client.models.generateContent({
     model: import.meta.env.VITE_MODEL?.trim() || "gemini-1.5-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { text: settings.prompt }
-        ]
-      }
-    ]
+    contents: settings.prompt
   });
 
   return response;
