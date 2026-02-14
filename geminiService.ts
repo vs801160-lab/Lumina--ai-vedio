@@ -42,8 +42,7 @@ export class GeminiVideoService {
     const client = this.createClient();
 
     // ⚠️ Example call — adjust as per your actual Gemini API usage
-    const response = await client.models.generateContent({
-      model: "gemini-1.5-pro",
+    const model = import.meta.env.VITE_MODEL?.trim() || "gemini-1.5-flash";
       contents: [
         {
           role: "user",
