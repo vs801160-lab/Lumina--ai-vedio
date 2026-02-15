@@ -4,7 +4,7 @@ import { GenerationSettings } from "./types";
 
 export class GeminiVideoService {
   private static getActiveKey(): string {
-    const key = process.env.API_KEY;
+    const key = import.meta.env.VITE_GEMINI_API_KEY
     if (!key || key === 'undefined' || key === '') {
       throw new Error("API_KEY_MISSING");
     }
