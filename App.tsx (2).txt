@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import VideoCard from './components/VideoCard';
 import { GeminiVideoService } from './geminiService';
-import { db } from './supabaseService';
+import {supabase}from'./supabaseService';
 import { GeneratedVideo, SubscriptionTier, Resolution, AspectRatio, VisualStyle, CreditPackage, Transaction } from './types';
 import { 
   AlertCircle, Loader2, Plus, Languages, Image as ImageIcon, Zap, ShieldAlert, Info, ExternalLink
@@ -62,7 +62,7 @@ const App: React.FC = () => {
         setHasApiKey(!!process.env.API_KEY);
       }
 
-      const u = await db.getUser();
+      const u = await supabase.getUser();
       setUser(u);
       if (u) updateUserData(u.id);
     };
@@ -70,16 +70,16 @@ const App: React.FC = () => {
   }, []);
 
   const updateUserData = async (userId: string) => {
-    const c = await db.getCredits(userId);
+    const c = await supabase.getCredits(userId);
     setCredits(c);
-    setTier(await db.getTier(userId));
-    setTransactions(await db.fetchTransactions(userId));
-    setLibrary(await db.fetchVideos(userId));
+    setTier(await supabase.getTier(userId));
+    setTransactions(await supabase.fetchTransactions(userId));
+    setLibrary(await supabase.fetchVideos(userId));
   };
 
   const handlePurchase = async (pkg: CreditPackage) => {
     if (user) {
-      const newC = await db.updateCredits(user.id, pkg.credits, `Purchase: ${pkg.name}`);
+      const newC = await supabase.updateCredits(user.id, pkg.credits, `Purchase: ${pkg.name}`);
       updateUserData(user.id);
       alert("Credits Added!");
       setCurrentView('library');
@@ -122,8 +122,8 @@ const App: React.FC = () => {
         style: selectedStyle.name 
       };
       
-      await db.saveVideo(newVideo, user?.id || 'demo-user');
-      await db.updateCredits(user?.id || 'demo-user', -10, `Render: ${newVideo.id}`);
+      await supabase.saveVideo(newVideo, user?.id || 'demo-user');
+      await supabase.updateCredits(user?.id || 'demo-user', -10, `Render: ${newVideo.id}`);
       updateUserData(user?.id || 'demo-user');
       setCurrentView('library');
       setPrompt(''); setSelectedImage(null); setExtendingVideo(null);
@@ -146,9 +146,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#06080f] text-white flex flex-col font-sans">
       <Navbar currentView={currentView} onNavigate={setCurrentView} credits={credits} tier={tier} user={user} t={t} onLoginClick={async () => {
-        const res = await db.signInWithGoogle();
+        const res = await supabase.signInWithGoogle();
         if (res.user) { setUser(res.user); updateUserData(res.user.id); }
-      }} onLogout={() => { db.signOut(); setUser(null); setCredits(0); }} onBuyCredits={() => setCurrentView('pricing')} />
+      }} onLogout={() => { supabase.signOut(); setUser(null); setCredits(0); }} onBuyCredits={() => setCurrentView('pricing')} />
 
       {hasApiKey === false && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 text-center">
