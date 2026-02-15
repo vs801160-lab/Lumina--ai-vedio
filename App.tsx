@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import VideoCard from './components/VideoCard';
 import { GeminiVideoService } from './geminiService';
-import { db } from './supabaseService';
+import { supabase } from './supabaseService';
 import { GeneratedVideo, SubscriptionTier, Resolution, AspectRatio, VisualStyle, CreditPackage, Transaction } from './types';
 import { 
   AlertCircle, Loader2, Plus, Languages, Image as ImageIcon, Zap, ShieldAlert, Info, ExternalLink
@@ -71,11 +71,11 @@ const App: React.FC = () => {
 
   const updateUserData = async (userId: string) => {
     try {
-      const c = await db.getCredits(userId);
+      const c = await supabase.getCredits(userId);
       setCredits(c);
-      setTier(await db.getTier(userId));
-      setTransactions(await db.fetchTransactions(userId));
-      setLibrary(await db.fetchVideos(userId));
+      setTier(await supabase.getTier(userId));
+      setTransactions(await supabase.fetchTransactions(userId));
+      setLibrary(await supabase.fetchVideos(userId));
     } catch (e) {
       console.error("Failed to update user data", e);
     }
@@ -83,7 +83,7 @@ const App: React.FC = () => {
 
   const handlePurchase = async (pkg: CreditPackage) => {
     if (user) {
-      await db.updateCredits(user.id, pkg.credits, `Purchase: ${pkg.name}`);
+      await supabase.updateCredits(user.id, pkg.credits, `Purchase: ${pkg.name}`);
       updateUserData(user.id);
       alert("Credits Added!");
       setCurrentView('library');
@@ -133,8 +133,8 @@ const App: React.FC = () => {
         style: selectedStyle.name 
       };
       
-      await db.saveVideo(newVideo, targetUserId);
-      await db.updateCredits(targetUserId, -10, `Render: ${newVideo.id}`);
+      await supabase.saveVideo(newVideo, targetUserId);
+      await supabase.updateCredits(targetUserId, -10, `Render: ${newVideo.id}`);
       updateUserData(targetUserId);
       setCurrentView('library');
       setPrompt(''); 
@@ -161,9 +161,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#06080f] text-white flex flex-col font-sans">
       <Navbar currentView={currentView} onNavigate={setCurrentView} credits={credits} tier={tier} user={user} t={t} onLoginClick={async () => {
-        const res = await db.signInWithGoogle();
+        const res = await supabase.signInWithGoogle();
         if (res.user) { setUser(res.user); updateUserData(res.user.id); }
-      }} onLogout={() => { db.signOut(); setUser(null); setCredits(0); }} onBuyCredits={() => setCurrentView('pricing')} />
+      }} onLogout={() => { supabase.signOut(); setUser(null); setCredits(0); }} onBuyCredits={() => setCurrentView('pricing')} />
 
       {hasApiKey === false && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 text-center">
