@@ -101,8 +101,8 @@ const App: React.FC = () => {
   const handlePayment = (pkg: CreditPackage) => {
     if (!user) { setError(t.login_req); return; }
 
-    const razorpayKey = process.env.RAZORPAY_KEY_ID?.trim();
     
+    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID?.trim();
     if (!razorpayKey || razorpayKey === 'undefined' || !razorpayKey.startsWith('rzp_')) {
       setError("Razorpay Key ID missing or invalid! Dashboard se 'Key ID' copy karein (rzp_test... se shuru hoti hai).");
       return;
