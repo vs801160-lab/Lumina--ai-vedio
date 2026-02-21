@@ -120,7 +120,7 @@ const App: React.FC = () => {
           setHasApiKey(hasKey);
         } else {
           // Use direct access so Vite can replace it
-          const key = process.env.API_KEY;
+          const key = import.meta.env.API_KEY;
           setHasApiKey(!!key && key !== 'your_gemini_api_key_here');
         }
         
