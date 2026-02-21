@@ -11,7 +11,7 @@ export class GeminiVideoService {
     }
     
     // Fallback to Vite defined key (static from .env)
-    const key = process.env.API_KEY;
+    const key = import.meta.env.API_KEY;
     if (!key || key === 'undefined' || key === '' || key === 'your_gemini_api_key_here') {
       throw new Error("API_KEY_PENDING");
     }
